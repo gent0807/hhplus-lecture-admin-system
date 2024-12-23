@@ -1,4 +1,4 @@
-package org.example.lecutreAdminSystem.domain.entity.user;
+package org.example.lecutreAdminSystem.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-public class UserEntity {
+public class User {
 
     @Id
     @Column(name = "id")
