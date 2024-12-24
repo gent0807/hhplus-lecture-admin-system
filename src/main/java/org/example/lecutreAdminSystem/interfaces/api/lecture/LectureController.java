@@ -46,28 +46,6 @@ public class LectureController {
         return new ResponseEntity<List<LectureResponse>>(HttpStatus.OK);
     }
 
-    /**
-     * 사용자 id와 강의 id를 입력하면 특강 신청 목록에 추가된다.
-     * @param uid
-     * @param lid
-     * @return ResponseEntity<?>
-     */
-    @PostMapping("/apply/{uid}/{lid}")
-    public ResponseEntity<?> applyLecture(@PathVariable String uid, @PathVariable String lid) {
 
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    /**
-     * 사용자 id와 강의 id를 입력하면 특강 신청 목록에서 삭제된다.
-     * @param uid
-     * @param lid
-     * @return ResponseEntity<?>
-     */
-    @DeleteMapping("/apply/{uid}/{lid}")
-    public ResponseEntity<?> removeApply(@PathVariable String uid, @PathVariable String lid) {
-
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
 
 }
