@@ -29,4 +29,7 @@ public class User {
     @Column(name="job")
     private String job;
 
+    public boolean validate(){
+        return true;
+    }
 }

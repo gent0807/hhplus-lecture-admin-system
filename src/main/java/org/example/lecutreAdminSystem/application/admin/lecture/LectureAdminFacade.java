@@ -1,6 +1,7 @@
-package org.example.lecutreAdminSystem.application.facade;
+package org.example.lecutreAdminSystem.application.admin.lecture;
 
-import org.example.lecutreAdminSystem.application.facade.dto.LectureAdminInfo;
+import lombok.RequiredArgsConstructor;
+import org.example.lecutreAdminSystem.application.admin.lecture.dto.LectureAdminFacadeInfo;
 import org.example.lecutreAdminSystem.interfaces.api.apply.dto.ApplyRequest;
 import org.example.lecutreAdminSystem.interfaces.api.lecture.dto.LectureRequest;
 import org.springframework.stereotype.Component;
@@ -8,23 +9,23 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class LectureAdmin {
-    public List<LectureAdminInfo> getAllLecturesWithStatusByUserId(long userId) {
+@RequiredArgsConstructor
+public class LectureAdminFacade {
 
+
+    public List<LectureAdminFacadeInfo> findAllLecturesByDateAndTimeAndUserIdWithStatus(LectureRequest lectureRequest) {
         return null;
     }
 
-    public List<LectureAdminInfo> findLecturesByDateAndTimeAndUserId(LectureRequest lectureRequest) {
+    public List<LectureAdminFacadeInfo> findCurrentAppliesByUserIdAndLectureId(ApplyRequest applyRequest) {
         return null;
     }
 
-    public List<LectureAdminInfo> findCurrentAppliesByUserIdAndLectureId(ApplyRequest applyRequest) {
-        return null;
+    public void insertNewApplies(List<ApplyRequest> applyRequests) {
+
     }
 
-    public void insertNewApply(ApplyRequest applyRequest) {
-    }
+    public void removeApplies(List<ApplyRequest> applyIds) {
 
-    public void removeApply(long applyId) {
     }
 }
