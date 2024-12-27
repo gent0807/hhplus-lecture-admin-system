@@ -28,7 +28,8 @@ public class LectureService {
 
         return lecturesByTime.stream().filter(lecture -> {
 
-            return (lecture.getDate().isAfter(startDate) && lecture.getDate().isBefore(endDate));
+            return ((lecture.getDate().equals(startDate) || lecture.getDate().isAfter(startDate))
+                        && (lecture.getDate().equals(endDate) || lecture.getDate().isBefore(endDate)));
 
         }).toList();
     }
