@@ -1,4 +1,4 @@
-package org.example.hhpluslectureadminsystem;
+package org.example.lecutreAdminSystem;
 
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
@@ -7,7 +7,7 @@ public class ServletInitializer extends SpringBootServletInitializer {
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(HhplusLectureAdminSystemApplication.class);
+        return application.sources(LectureAdminApp.class);
     }
 
 }
