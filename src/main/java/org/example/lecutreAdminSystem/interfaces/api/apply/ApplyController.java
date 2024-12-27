@@ -1,8 +1,11 @@
 package org.example.lecutreAdminSystem.interfaces.api.apply;
 
 import lombok.RequiredArgsConstructor;
+import org.example.lecutreAdminSystem.application.admin.lecture.enumeration.APPLY_RESULT;
+import org.example.lecutreAdminSystem.application.admin.lecture.enumeration.CANCLE_RESULT;
 import org.example.lecutreAdminSystem.application.admin.lecture.LectureAdminFacade;
-import org.example.lecutreAdminSystem.application.admin.lecture.dto.LectureAdminFacadeInfo;
+import org.example.lecutreAdminSystem.application.admin.lecture.dto.ApplyParam;
+import org.example.lecutreAdminSystem.application.admin.lecture.dto.ApplyResult;
 import org.example.lecutreAdminSystem.interfaces.api.apply.dto.ApplyRequest;
 import org.example.lecutreAdminSystem.interfaces.api.apply.dto.ApplyResponse;
 import org.springframework.http.HttpStatus;
@@ -24,41 +27,53 @@ public class ApplyController {
      * @return ResponseEntity<List<ApplyResponse>>
      */
     @GetMapping("/current")
-    public ResponseEntity<List<ApplyResponse>> findCurrentApplies(@RequestParam("userId") long userId, @RequestParam("lectureId") long lectureId) {
+    public ResponseEntity<List<ApplyResponse>> findCurrentAppliesByUserIdAndLectureId(@RequestParam("userId") long userId, @RequestParam("lectureId") long lectureId) {
 
-        List<LectureAdminFacadeInfo> lectureAdminFacadeInfos = lectureAdminFacade.findCurrentAppliesByUserIdAndLectureId(
-                ApplyRequest.builder()
-                        .userId(userId)
-                        .lectureId(lectureId)
-                        .build()
-        );
+        List<ApplyResult> applyResults = lectureAdminFacade.findCurrentAppliesByUserIdAndLectureId(
+                ApplyParam.convertFromAPIToDomainDTO(null, userId, lectureId));
 
-        return ResponseEntity.status(HttpStatus.OK).body(ApplyResponse.from(lectureAdminFacadeInfos));
+        return ResponseEntity.status(HttpStatus.OK).body(ApplyResponse.convertFromDomainToAPIDTO(applyResults));
     }
 
     /**
-     * 특정 사용자의 특정 강의에 대한 수강 신청 정보들을 수강 신청 목록(현황)에 추가한다.
-     * @param applyRequests
+     * 특정 사용자의 특정 강의에 대한 수강 신청 정보를 수강 신청 목록(현황)에 추가한다.
+     * @param applyRequest
      * @return ResponseEntity<>
      */
     @PostMapping("/new")
-    public ResponseEntity<?> insertNewApplies(@RequestBody List<ApplyRequest> applyRequests) {
+    public ResponseEntity<?> insertNewApplies(@RequestBody ApplyRequest applyRequest) throws Exception {
 
-        lectureAdminFacade.insertNewApplies(applyRequests);
+        APPLY_RESULT status = lectureAdminFacade.insertNewApplies(ApplyParam.convertFromAPIToDomainDTO(applyRequest.getApplyId(), applyRequest.getUserId(), applyRequest.getLectureId()));
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        if(status == APPLY_RESULT.FAIL){
+            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+        }
+
+        if(status == APPLY_RESULT.SUCCESS){
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        }
+
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
-     * 특정 수강 신청 정보들을 수강 신청 목록에서 삭제한다.
-     * applyRequests
+     * 특정 수강 신청 정보를 수강 신청 목록에서 삭제한다.
+     * applyRequest
      * @return ResponseEntity<?>
      */
     @DeleteMapping
-    public ResponseEntity<?> removeApplies(@RequestParam List<ApplyRequest> applyRequests) {
+    public ResponseEntity<?> removeApplies(@RequestParam ApplyRequest applyRequest) throws Exception {
 
-        lectureAdminFacade.removeApplies(applyRequests);
+        CANCLE_RESULT status = lectureAdminFacade.removeApplies(ApplyParam.convertFromAPIToDomainDTO(applyRequest.getApplyId(), applyRequest.getUserId(), applyRequest.getLectureId()));
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        if(status == CANCLE_RESULT.FAIL){
+            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+        }
+
+        if(status == CANCLE_RESULT.SUCCESS){
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -1,35 +1,49 @@
 package org.example.lecutreAdminSystem.domain.user.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Setter
+@ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Table(name = "USERS")
 public class User {
 
     @Id
-    @Column(name = "id")
-    private long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // AutoIncrement
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "user_name", nullable = false)
+    private String userName;
 
-    @Column(name = "age")
-    private long age;
+    @Column(name = "age", nullable = false)
+    private Long age;
 
-    @Column(name = "wm")
-    private String wm;
-
-    @Column(name="job")
+    @Column(name = "job")
     private String job;
 
-    public boolean validate(){
-        return true;
+    @Column(name = "birth", nullable = false)
+    private LocalDate birth;
+
+    @Column(name = "gender")
+    private String gender;
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
+    public static void validate(long userId){
+        if(userId <= 0){
+            throw new IllegalArgumentException();
+        }
+
     }
 }

@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class ApplyRequest {
-    private long id;
-    private long userId;
-    private long lectureId;
+    private Long applyId;
+    private Long userId;
+    private Long lectureId;
 }
