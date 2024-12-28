@@ -10,9 +10,9 @@ import org.example.lecutreAdminSystem.domain.lecture.entity.Lecture;
 import org.example.lecutreAdminSystem.domain.lecture.repository.LectureRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
-
-import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
@@ -22,8 +22,16 @@ public class LectureService {
 
     private final ApplyRepository applyRepository;
 
-    public List<Lecture> findLecturesByDateAndTime(String startDate, String endDate, String startTime, String endTime) {
-        return lectureRepository.findByStartDateLessThanEqualAndEndDateGreaterThanEqualAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(startDate, endDate, startTime, endTime);
+    public List<Lecture> findLecturesByDateAndTime(LocalDate startDate, LocalDate endDate, LocalDateTime startTime, LocalDateTime endTime) {
+
+        List<Lecture> lecturesByTime = lectureRepository.findByStartTimeGreaterThanEqualAndEndTimeLessThanEqual(startTime, endTime);
+
+        return lecturesByTime.stream().filter(lecture -> {
+
+            return ((lecture.getDate().equals(startDate) || lecture.getDate().isAfter(startDate))
+                        && (lecture.getDate().equals(endDate) || lecture.getDate().isBefore(endDate)));
+
+        }).toList();
     }
 
     // 특강 현재 수강 인원이 0명 미만이면 수강 신청 가능 상태 OFF, 30명 이상이면 수강 신청 가능 상태를 OFF로
