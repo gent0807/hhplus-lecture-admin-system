@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ApplyRepository {
-    List<Apply> findByUserId(Long userId);
+    Optional<List<Apply>> findByUserId(Long userId);
 
-    List<Apply> findByUserIdAndLectureId(Long userId, Long lectureId);
+    Optional<List<Apply>> findByUserIdAndLectureId(Long userId, Long lectureId);
 
-    List<Apply> findAll();
+    Optional<List<Apply>> findAll();
 
     boolean existsByUserIdAndLectureId(Long userId, Long lectureId);
 
