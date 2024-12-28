@@ -6,9 +6,11 @@ import org.example.lecutreAdminSystem.application.admin.lecture.dto.LectureResul
 import org.example.lecutreAdminSystem.application.admin.lecture.enumeration.LECTURE_STATUS;
 import org.example.lecutreAdminSystem.domain.apply.entity.Apply;
 import org.example.lecutreAdminSystem.domain.apply.repository.ApplyRepository;
+import org.example.lecutreAdminSystem.domain.common.exception.LectureByDateAndTimeNotFoundException;
+import org.example.lecutreAdminSystem.domain.common.exception.LectureByIdNotFoundException;
+import org.example.lecutreAdminSystem.domain.common.exception.LectureInvalidException;
 import org.example.lecutreAdminSystem.domain.lecture.entity.Lecture;
 import org.example.lecutreAdminSystem.domain.lecture.repository.LectureRepository;
-import org.example.lecutreAdminSystem.interfaces.api.common.exception.CustomException;
 import org.example.lecutreAdminSystem.interfaces.api.common.exception.error.ErrorCode;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +28,7 @@ public class LectureService {
 
     public List<Lecture> findLecturesByDateAndTime(LocalDate startDate, LocalDate endDate, LocalDateTime startTime, LocalDateTime endTime) {
 
-        List<Lecture> lecturesByTime = lectureRepository.findByStartTimeGreaterThanEqualAndEndTimeLessThanEqual(startTime, endTime).orElseThrow(()->new CustomException(ErrorCode.LECTURE_NONE));
+        List<Lecture> lecturesByTime = lectureRepository.findByStartTimeGreaterThanEqualAndEndTimeLessThanEqual(startTime, endTime).orElseThrow(()->new LectureByDateAndTimeNotFoundException(ErrorCode.LECTURE_NONE));
 
         return lecturesByTime.stream().filter(lecture -> {
 
@@ -50,7 +52,7 @@ public class LectureService {
                 lecture.checkStudentMaxCount();
                 lecture.checkStudentMinCount();
                 lecture.checkLectureDate();
-            }catch (CustomException e){
+            }catch (LectureInvalidException e){
                 lectureStatus = LECTURE_STATUS.OFF;
             }
 
@@ -65,8 +67,8 @@ public class LectureService {
                     .map(apply -> {
 
                         try {
-                            apply.checkDurableDateAndTime(lecture);
-                        } catch (CustomException e) {
+                            apply.checkDuplicatedDateAndTime(lecture);
+                        } catch (LectureInvalidException e) {
                             return LECTURE_STATUS.OFF;
                         }
                         
@@ -75,9 +77,7 @@ public class LectureService {
                     }).anyMatch(status -> status == LECTURE_STATUS.OFF)){
                 lectureStatus = LECTURE_STATUS.OFF;
             }
-            
-            
-            
+
             return lecture.convertFromEntityToDomainDTO(lectureStatus);
         }).toList();
 
@@ -89,7 +89,7 @@ public class LectureService {
         Lecture.validate(lectureId);
 
         // 해당 강의 아이디로 강의 조회
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(()->new CustomException(ErrorCode.LECTURE_NONE));
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(()->new LectureByIdNotFoundException(ErrorCode.LECTURE_NONE));
 
         // 현재 수강인원 체크
         lecture.checkStudentMaxCount();
@@ -105,7 +105,7 @@ public class LectureService {
         Lecture.validate(lectureId);
 
         // 해당 강의 아이디로 강의 조회
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(()->new CustomException(ErrorCode.LECTURE_NONE));
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(()->new LectureByIdNotFoundException(ErrorCode.LECTURE_NONE));
 
         // 현재 수강인원 확인
         lecture.checkStudentMinCount();
@@ -119,7 +119,7 @@ public class LectureService {
         Lecture.validate(lectureId);
 
         // 해당 강의 아이디로 강의 조회
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(()->new CustomException(ErrorCode.LECTURE_NONE));
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(()->new LectureByIdNotFoundException(ErrorCode.LECTURE_NONE));
 
         // 수강 인원 set
         lecture.setCurrentStudentCount(lecture.getCurrentStudentCount() + dx);
