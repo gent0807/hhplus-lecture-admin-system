@@ -14,7 +14,7 @@ import java.time.LocalTime;
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 @AllArgsConstructor
 @Builder
 @Entity
@@ -54,15 +54,15 @@ public class Apply {
     private LocalDateTime updatedAt;
 
     public static void validate(long applyId, long userId, long lectureId){
-        if(applyId <= 0){
+        if(applyId <= 1){
             throw new CustomException(ErrorCode.APPLY_ID_INVALID);
         }
 
-        if(userId <= 0){
+        if(userId <= 1){
             throw new CustomException(ErrorCode.USER_ID_INVALID);
         }
 
-        if(lectureId <= 0){
+        if(lectureId <= 1){
             throw new CustomException(ErrorCode.LECTURE_ID_INVALID);
         }
     }

@@ -15,7 +15,7 @@ import java.time.LocalTime;
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 @Entity
 @Table(name = "LECTURES")
 public class Lecture {
@@ -71,17 +71,17 @@ public class Lecture {
         }
     }
 
+    public void checkStudentMinCount() throws CustomException {
+        if(this.currentStudentCount < 1){
+            throw new CustomException(ErrorCode.LECTURE_UNDER_MIN_STUDENT);
+        }
+    }
+
     public void checkLectureDate() throws CustomException{
         LocalDate today = LocalDate.now();
 
         if(today.isAfter(this.date) || today.isEqual(this.date)){
             throw new CustomException(ErrorCode.APPLY_ALREADY_END);
-        }
-    }
-
-    public void checkStudentMinCount() throws CustomException {
-        if(this.currentStudentCount < 1){
-            throw new CustomException(ErrorCode.LECTURE_UNDER_MIN_STUDENT);
         }
     }
 
