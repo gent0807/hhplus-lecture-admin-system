@@ -8,6 +8,8 @@ import org.example.lecutreAdminSystem.domain.apply.entity.Apply;
 import org.example.lecutreAdminSystem.domain.apply.repository.ApplyRepository;
 import org.example.lecutreAdminSystem.domain.lecture.entity.Lecture;
 import org.example.lecutreAdminSystem.domain.lecture.repository.LectureRepository;
+import org.example.lecutreAdminSystem.interfaces.api.common.exception.CustomException;
+import org.example.lecutreAdminSystem.interfaces.api.common.exception.error.ErrorCode;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -24,7 +26,7 @@ public class LectureService {
 
     public List<Lecture> findLecturesByDateAndTime(LocalDate startDate, LocalDate endDate, LocalDateTime startTime, LocalDateTime endTime) {
 
-        List<Lecture> lecturesByTime = lectureRepository.findByStartTimeGreaterThanEqualAndEndTimeLessThanEqual(startTime, endTime);
+        List<Lecture> lecturesByTime = lectureRepository.findByStartTimeGreaterThanEqualAndEndTimeLessThanEqual(startTime, endTime).orElseThrow(()->new CustomException(ErrorCode.LECTURE_NONE));
 
         return lecturesByTime.stream().filter(lecture -> {
 
@@ -48,7 +50,7 @@ public class LectureService {
                 lecture.checkStudentMaxCount();
                 lecture.checkStudentMinCount();
                 lecture.checkLectureDate();
-            }catch (IllegalArgumentException e){
+            }catch (CustomException e){
                 lectureStatus = LECTURE_STATUS.OFF;
             }
 
@@ -63,12 +65,13 @@ public class LectureService {
                     .map(apply -> {
 
                         try {
-                            apply.checkDurableDate(lecture);
-                        } catch (IllegalArgumentException e) {
+                            apply.checkDurableDateAndTime(lecture);
+                        } catch (CustomException e) {
                             return LECTURE_STATUS.OFF;
                         }
                         
                         return LECTURE_STATUS.ON;
+
                     }).anyMatch(status -> status == LECTURE_STATUS.OFF)){
                 lectureStatus = LECTURE_STATUS.OFF;
             }
@@ -80,18 +83,13 @@ public class LectureService {
 
     }
 
-    public void checkLectureApplyStatus(Long lectureId) throws IllegalArgumentException {
+    public void checkLectureApplyStatus(Long lectureId)  {
 
         // 강의 정보 유효성 검사
         Lecture.validate(lectureId);
 
-        // 해당 강의 아이디로 강의 존재 여부 확인
-        if(!lectureRepository.existsById(lectureId)){
-            throw new IllegalArgumentException();
-        }
-
         // 해당 강의 아이디로 강의 조회
-        Lecture lecture = lectureRepository.findById(lectureId);
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(()->new CustomException(ErrorCode.LECTURE_NONE));
 
         // 현재 수강인원 체크
         lecture.checkStudentMaxCount();
@@ -101,18 +99,13 @@ public class LectureService {
 
     }
 
-    public void checkLectureCancelStatus(Long lectureId) throws IllegalArgumentException{
+    public void checkLectureCancelStatus(Long lectureId) {
 
         // 강의 정보 유효성 검사
         Lecture.validate(lectureId);
 
-        // 해당 강의 아이디로 강의 존재 여부 확인
-        if(!lectureRepository.existsById(lectureId)){
-            throw new IllegalArgumentException();
-        }
-
         // 해당 강의 아이디로 강의 조회
-        Lecture lecture = lectureRepository.findById(lectureId);
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(()->new CustomException(ErrorCode.LECTURE_NONE));
 
         // 현재 수강인원 확인
         lecture.checkStudentMinCount();
@@ -126,7 +119,7 @@ public class LectureService {
         Lecture.validate(lectureId);
 
         // 해당 강의 아이디로 강의 조회
-        Lecture lecture = lectureRepository.findById(lectureId);
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(()->new CustomException(ErrorCode.LECTURE_NONE));
 
         // 수강 인원 set
         lecture.setCurrentStudentCount(lecture.getCurrentStudentCount() + dx);
