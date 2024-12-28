@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.example.lecutreAdminSystem.application.admin.lecture.dto.ApplyResult;
 import org.example.lecutreAdminSystem.domain.lecture.entity.Lecture;
+import org.example.lecutreAdminSystem.interfaces.api.common.exception.CustomException;
+import org.example.lecutreAdminSystem.interfaces.api.common.exception.error.ErrorCode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -51,17 +53,21 @@ public class Apply {
     @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
 
-    public static void validate(long applyId, long userId, long lectureId) throws IllegalArgumentException{
-        if(applyId <= 0 || userId <= 0 || lectureId <= 0){
-            throw new IllegalArgumentException();
+    public static void validate(long applyId, long userId, long lectureId){
+        if(applyId <= 0){
+            throw new CustomException(ErrorCode.APPLY_ID_INVALID);
+        }
+
+        if(userId <= 0){
+            throw new CustomException(ErrorCode.USER_ID_INVALID);
+        }
+
+        if(lectureId <= 0){
+            throw new CustomException(ErrorCode.LECTURE_ID_INVALID);
         }
     }
 
-    public void checkDurableDate(Lecture lecture) {
-
-        if(lecture == null){
-            throw new IllegalArgumentException();
-        }
+    public void checkDurableDateAndTime(Lecture lecture) throws CustomException{
 
         LocalDate date = lecture.getDate();
         LocalTime startTime = lecture.getStartTime();
@@ -69,7 +75,7 @@ public class Apply {
 
         if(this.lectureDate.equals(date)){
             if(!(this.startTime.isAfter(endTime) || this.endTime.isBefore(startTime))){
-                throw new IllegalArgumentException();
+                throw new CustomException(ErrorCode.LECTURE_DATE_TIME_DURABLE);
             }
         }
     }

@@ -1,8 +1,6 @@
 package org.example.lecutreAdminSystem.interfaces.api.apply;
 
 import lombok.RequiredArgsConstructor;
-import org.example.lecutreAdminSystem.application.admin.lecture.enumeration.APPLY_RESULT;
-import org.example.lecutreAdminSystem.application.admin.lecture.enumeration.CANCLE_RESULT;
 import org.example.lecutreAdminSystem.application.admin.lecture.LectureAdminFacade;
 import org.example.lecutreAdminSystem.application.admin.lecture.dto.ApplyParam;
 import org.example.lecutreAdminSystem.application.admin.lecture.dto.ApplyResult;
@@ -43,17 +41,9 @@ public class ApplyController {
     @PostMapping("/new")
     public ResponseEntity<?> insertNewApplies(@RequestBody ApplyRequest applyRequest) throws Exception {
 
-        APPLY_RESULT status = lectureAdminFacade.insertNewApplies(ApplyParam.convertFromAPIToDomainDTO(applyRequest.getApplyId(), applyRequest.getUserId(), applyRequest.getLectureId()));
+        lectureAdminFacade.insertNewApplies(ApplyParam.convertFromAPIToDomainDTO(applyRequest.getApplyId(), applyRequest.getUserId(), applyRequest.getLectureId()));
 
-        if(status == APPLY_RESULT.FAIL){
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
-        }
-
-        if(status == APPLY_RESULT.SUCCESS){
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        }
-
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     /**
@@ -64,16 +54,8 @@ public class ApplyController {
     @DeleteMapping
     public ResponseEntity<?> removeApplies(@RequestParam ApplyRequest applyRequest) throws Exception {
 
-        CANCLE_RESULT status = lectureAdminFacade.removeApplies(ApplyParam.convertFromAPIToDomainDTO(applyRequest.getApplyId(), applyRequest.getUserId(), applyRequest.getLectureId()));
+        lectureAdminFacade.removeApplies(ApplyParam.convertFromAPIToDomainDTO(applyRequest.getApplyId(), applyRequest.getUserId(), applyRequest.getLectureId()));
 
-        if(status == CANCLE_RESULT.FAIL){
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
-        }
-
-        if(status == CANCLE_RESULT.SUCCESS){
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

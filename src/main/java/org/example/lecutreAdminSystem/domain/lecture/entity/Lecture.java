@@ -5,6 +5,8 @@ import lombok.*;
 import org.example.lecutreAdminSystem.application.admin.lecture.dto.LectureResult;
 import org.example.lecutreAdminSystem.application.admin.lecture.enumeration.LECTURE_STATUS;
 import org.example.lecutreAdminSystem.domain.teacher.entity.Teacher;
+import org.example.lecutreAdminSystem.interfaces.api.common.exception.CustomException;
+import org.example.lecutreAdminSystem.interfaces.api.common.exception.error.ErrorCode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -57,29 +59,29 @@ public class Lecture {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    public static void validate(long lectureId) throws IllegalArgumentException {
+    public static void validate(long lectureId)  {
         if(lectureId <= 0){
-            throw new IllegalArgumentException();
+            throw new CustomException(ErrorCode.LECTURE_ID_INVALID);
         }
     }
 
-    public void checkStudentMaxCount() throws IllegalArgumentException {
+    public void checkStudentMaxCount() throws CustomException{
         if(this.currentStudentCount >= this.maxStudentCount){
-            throw new IllegalArgumentException();
+            throw new CustomException(ErrorCode.LECTURE_OVER_MAX_STUDENT);
         }
     }
 
-    public void checkLectureDate() throws IllegalArgumentException{
+    public void checkLectureDate() throws CustomException{
         LocalDate today = LocalDate.now();
 
-        if(today.isAfter(this.date)){
-            throw new IllegalArgumentException();
+        if(today.isAfter(this.date) || today.isEqual(this.date)){
+            throw new CustomException(ErrorCode.APPLY_ALREADY_END);
         }
     }
 
-    public void checkStudentMinCount() throws IllegalArgumentException{
+    public void checkStudentMinCount() throws CustomException {
         if(this.currentStudentCount < 1){
-            throw new IllegalArgumentException();
+            throw new CustomException(ErrorCode.LECTURE_UNDER_MIN_STUDENT);
         }
     }
 
