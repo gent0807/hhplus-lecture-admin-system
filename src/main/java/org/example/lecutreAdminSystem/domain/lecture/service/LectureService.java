@@ -2,6 +2,8 @@ package org.example.lecutreAdminSystem.domain.lecture.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.example.lecutreAdminSystem.application.admin.lecture.dto.ApplyParam;
+import org.example.lecutreAdminSystem.application.admin.lecture.dto.LectureParam;
 import org.example.lecutreAdminSystem.application.admin.lecture.dto.LectureResult;
 import org.example.lecutreAdminSystem.application.admin.lecture.enumeration.LECTURE_STATUS;
 import org.example.lecutreAdminSystem.domain.apply.entity.Apply;
@@ -13,6 +15,8 @@ import org.example.lecutreAdminSystem.domain.lecture.entity.Lecture;
 import org.example.lecutreAdminSystem.domain.lecture.repository.LectureRepository;
 import org.example.lecutreAdminSystem.interfaces.api.common.exception.error.ErrorCode;
 import org.springframework.stereotype.Service;
+import jakarta.validation.Valid;
+import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,15 +24,23 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Validated
 public class LectureService {
 
     private final LectureRepository lectureRepository;
 
     private final ApplyRepository applyRepository;
 
-    public List<Lecture> findLecturesByDateAndTime(LocalDate startDate, LocalDate endDate, LocalDateTime startTime, LocalDateTime endTime) {
+    public List<Lecture> findLecturesByDateAndTime(@Valid LectureParam lectureParam) {
 
-        List<Lecture> lecturesByTime = lectureRepository.findByStartTimeGreaterThanEqualAndEndTimeLessThanEqual(startTime, endTime).orElseThrow(()->new LectureByDateAndTimeNotFoundException(ErrorCode.LECTURE_NONE));
+        LocalDate startDate = lectureParam.getStartDate();
+        LocalDate endDate = lectureParam.getEndDate();
+
+        LocalDateTime startTime = lectureParam.getStartTime();
+        LocalDateTime endTime = lectureParam.getEndTime();
+
+        List<Lecture> lecturesByTime = lectureRepository.findByStartTimeGreaterThanEqualAndEndTimeLessThanEqual(startTime, endTime)
+                .orElseThrow(()->new LectureByDateAndTimeNotFoundException(ErrorCode.LECTURE_NONE));
 
         return lecturesByTime.stream().filter(lecture -> {
 
@@ -83,7 +95,9 @@ public class LectureService {
 
     }
 
-    public void checkLectureApplyStatus(Long lectureId)  {
+    public void checkLectureApplyStatus(ApplyParam applyParam)  {
+
+        long lectureId = applyParam.getLectureId();
 
         // 강의 정보 유효성 검사
         Lecture.validate(lectureId);
@@ -99,7 +113,9 @@ public class LectureService {
 
     }
 
-    public void checkLectureCancelStatus(Long lectureId) {
+    public void checkLectureCancelStatus(ApplyParam applyParam)  {
+
+        long lectureId = applyParam.getLectureId();
 
         // 강의 정보 유효성 검사
         Lecture.validate(lectureId);
@@ -113,7 +129,9 @@ public class LectureService {
     }
 
     @Transactional
-    public void saveLecture(long lectureId, long dx) {
+    public void saveLecture(ApplyParam applyParam, long dx) {
+
+        long lectureId = applyParam.getLectureId();
 
         // 강의 정보 유효성 검사
         Lecture.validate(lectureId);

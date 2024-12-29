@@ -3,6 +3,7 @@ package org.example.lecutreAdminSystem.application.admin.lecture.dto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.antlr.v4.runtime.misc.NotNull;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,7 +13,10 @@ import java.time.format.DateTimeFormatter;
 @Setter
 @Builder
 public class LectureParam {
+
     private Long userId;
+
+    @NotNull
     private Long lectureId;
     private LocalDate startDate;
     private LocalDate endDate;

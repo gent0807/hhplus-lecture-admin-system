@@ -3,6 +3,8 @@ package org.example.lectureAdminSystem.domain.lecture.entity;
 import org.example.lecutreAdminSystem.domain.lecture.entity.Lecture;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
@@ -41,9 +43,7 @@ public class LectureTest {
     @Test
     void 강의일이_오늘_이전인_상황에서_강의일_확인하면_LectureInvalidException() {
 
-        lecture.setMaxStudentCount(30L);
-
-        lecture.setCurrentStudentCount(lecture.getMaxStudentCount() + 1L);
+        lecture.setDate(LocalDate.now().minusDays(1L));
 
         assertThatIllegalArgumentException()
                 .isThrownBy(()->lecture.checkLectureDate());

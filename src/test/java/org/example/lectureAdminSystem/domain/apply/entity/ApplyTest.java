@@ -20,7 +20,7 @@ public class ApplyTest {
     Lecture lecture = mock(Lecture.class);
 
     @Test
-    void 수강신청_id에_1보다_작은_값을_입력했을_때_AppplyInvalidException() {
+    void 수강신청_id에_1보다_작은_값을_입력했을_때_ApplyInvalidException() {
         assertThatIllegalArgumentException()
                 .isThrownBy(()->apply.validate(0L, 1L, 1L));
     }

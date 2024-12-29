@@ -1,9 +1,11 @@
 package org.example.lecutreAdminSystem.domain.apply.service;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.lecutreAdminSystem.application.admin.lecture.dto.ApplyParam;
 import org.example.lecutreAdminSystem.application.admin.lecture.dto.ApplyResult;
+import org.example.lecutreAdminSystem.application.admin.lecture.dto.LectureParam;
 import org.example.lecutreAdminSystem.domain.apply.entity.Apply;
 import org.example.lecutreAdminSystem.domain.apply.repository.ApplyRepository;
 import org.example.lecutreAdminSystem.domain.common.exception.*;
@@ -12,18 +14,22 @@ import org.example.lecutreAdminSystem.domain.lecture.repository.LectureRepositor
 import org.example.lecutreAdminSystem.domain.user.entity.User;
 import org.example.lecutreAdminSystem.interfaces.api.common.exception.error.ErrorCode;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Validated
 public class ApplyService {
 
     private final ApplyRepository applyRepository;
 
     private final LectureRepository lectureRepository;
 
-    public List<Apply> findCurrentApplies(Long userId) {
+    public List<Apply> findCurrentApplies(@Valid LectureParam lectureParam) {
+
+        long userId = lectureParam.getUserId();
 
         // 유저 정보 정보 유효성 검사
         User.validate(userId);
@@ -31,12 +37,14 @@ public class ApplyService {
         return applyRepository.findByUserId(userId).orElseThrow(()->new ApplyByUserIdNotFoundException(ErrorCode.APPLY_NONE));
     }
 
-    public List<Apply> findCurrentAppliesByUserIdAndLectureId(Long applyId, Long userId, Long lectureId){
+    public List<ApplyResult> findCurrentAppliesByUserIdAndLectureId(ApplyParam applyParam){
 
-        Apply.validate(applyId, userId, lectureId);
+        Apply.validate(applyParam.getApplyId(), applyParam.getUserId(), applyParam.getLectureId());
 
-        return applyRepository.findByUserIdAndLectureId(userId, lectureId).orElseThrow(()->new ApplyByUserIdAndLectureIdNotFoundException(ErrorCode.APPLY_NONE));
-
+        return applyRepository.findByUserIdAndLectureId(applyParam.getUserId(), applyParam.getLectureId())
+                .orElseThrow(()->new ApplyByUserIdAndLectureIdNotFoundException(ErrorCode.APPLY_NONE))
+                .stream().map(apply -> {
+                    return apply.convertFromEntityToDomainDTO();}).toList();
 
     }
 
@@ -44,7 +52,13 @@ public class ApplyService {
         return currentApplies.stream().map(apply -> apply.convertFromEntityToDomainDTO()).toList();
     }
 
-    public void checkLectureApplyStatus(Long applyId, Long userId, Long lectureId){
+    public void checkLectureApplyStatus(ApplyParam applyParam){
+
+        long applyId = applyParam.getApplyId();
+
+        long userId = applyParam.getUserId();
+
+        long lectureId = applyParam.getLectureId();
 
         // 수강 신청 정보 유효성 검사
         Apply.validate(applyId,userId,lectureId);
@@ -58,7 +72,7 @@ public class ApplyService {
 
 
         applies.stream().filter(apply ->
-                apply.getLectureId().longValue() != lectureId.longValue()
+                apply.getLectureId().longValue() != lectureId
         ).forEach(apply -> {
 
             apply.checkDuplicatedDateAndTime(lectureRepository.findById(lectureId).orElseThrow(()->new ApplyByLectureIdNotFoundException(ErrorCode.LECTURE_NONE)));
@@ -68,7 +82,13 @@ public class ApplyService {
 
 
     }
-    public void checkLectureCancleStatus(Long applyId, Long userId, Long lectureId) {
+    public void checkLectureCancleStatus(ApplyParam applyParam) {
+
+        long applyId = applyParam.getApplyId();
+
+        long userId = applyParam.getUserId();
+
+        long lectureId = applyParam.getLectureId();
 
         // 수강 신청 정보 유효성 검증
         Apply.validate(applyId, userId, lectureId);
@@ -81,7 +101,10 @@ public class ApplyService {
     }
 
     @Transactional
-    public void saveApply(long userId, long lectureId) {
+    public void saveApply(ApplyParam applyParam) {
+
+        long userId = applyParam.getUserId();
+        long lectureId = applyParam.getLectureId();
 
         // 강의 정보 유효성 검사
         Lecture.validate(lectureId);

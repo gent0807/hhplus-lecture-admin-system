@@ -1,5 +1,6 @@
 package org.example.lecutreAdminSystem.interfaces.api.apply;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.lecutreAdminSystem.application.admin.lecture.LectureAdminFacade;
 import org.example.lecutreAdminSystem.application.admin.lecture.dto.ApplyParam;
@@ -8,6 +9,7 @@ import org.example.lecutreAdminSystem.interfaces.api.apply.dto.ApplyRequest;
 import org.example.lecutreAdminSystem.interfaces.api.apply.dto.ApplyResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,7 +41,7 @@ public class ApplyController {
      * @return ResponseEntity<>
      */
     @PostMapping("/new")
-    public ResponseEntity<?> insertNewApplies(@RequestBody ApplyRequest applyRequest) throws Exception {
+    public ResponseEntity<?> insertNewApplies(@Valid @RequestBody ApplyRequest applyRequest) throws Exception {
 
         lectureAdminFacade.insertNewApplies(ApplyParam.convertFromAPIToDomainDTO(applyRequest.getApplyId(), applyRequest.getUserId(), applyRequest.getLectureId()));
 
