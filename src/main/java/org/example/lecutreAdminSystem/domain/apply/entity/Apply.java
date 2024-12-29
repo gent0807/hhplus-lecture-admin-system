@@ -3,8 +3,8 @@ package org.example.lecutreAdminSystem.domain.apply.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.lecutreAdminSystem.application.admin.lecture.dto.ApplyResult;
+import org.example.lecutreAdminSystem.domain.common.exception.ApplyInvalidException;
 import org.example.lecutreAdminSystem.domain.lecture.entity.Lecture;
-import org.example.lecutreAdminSystem.interfaces.api.common.exception.CustomException;
 import org.example.lecutreAdminSystem.interfaces.api.common.exception.error.ErrorCode;
 
 import java.time.LocalDate;
@@ -14,7 +14,7 @@ import java.time.LocalTime;
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 @AllArgsConstructor
 @Builder
 @Entity
@@ -55,19 +55,19 @@ public class Apply {
 
     public static void validate(long applyId, long userId, long lectureId){
         if(applyId <= 0){
-            throw new CustomException(ErrorCode.APPLY_ID_INVALID);
+            throw new ApplyInvalidException(ErrorCode.APPLY_ID_INVALID);
         }
 
         if(userId <= 0){
-            throw new CustomException(ErrorCode.USER_ID_INVALID);
+            throw new ApplyInvalidException(ErrorCode.USER_ID_INVALID);
         }
 
         if(lectureId <= 0){
-            throw new CustomException(ErrorCode.LECTURE_ID_INVALID);
+            throw new ApplyInvalidException(ErrorCode.LECTURE_ID_INVALID);
         }
     }
 
-    public void checkDurableDateAndTime(Lecture lecture) throws CustomException{
+    public void checkDuplicatedDateAndTime(Lecture lecture) throws ApplyInvalidException{
 
         LocalDate date = lecture.getDate();
         LocalTime startTime = lecture.getStartTime();
@@ -75,7 +75,7 @@ public class Apply {
 
         if(this.lectureDate.equals(date)){
             if(!(this.startTime.isAfter(endTime) || this.endTime.isBefore(startTime))){
-                throw new CustomException(ErrorCode.LECTURE_DATE_TIME_DURABLE);
+                throw new ApplyInvalidException(ErrorCode.LECTURE_DATE_TIME_DUPLICATED);
             }
         }
     }

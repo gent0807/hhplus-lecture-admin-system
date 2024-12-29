@@ -1,4 +1,4 @@
-package org.example.lecutreAdminSystem.interfaces.api.common.exception;
+package org.example.lecutreAdminSystem.domain.common.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,6 +8,8 @@ import org.example.lecutreAdminSystem.interfaces.api.common.exception.error.Erro
 @Getter
 @Setter
 @AllArgsConstructor
-public class CustomException extends RuntimeException {
+public class ApplyByUserIdNotFoundException extends RuntimeException {
+
     ErrorCode errorCode;
+
 }
