@@ -1,9 +1,14 @@
 package org.example.lecutreAdminSystem.application.admin.lecture.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.lecutreAdminSystem.interfaces.api.apply.dto.ApplyRequest;
+import org.example.lecutreAdminSystem.interfaces.api.common.validation.annotation.ApplyId;
+import org.example.lecutreAdminSystem.interfaces.api.common.validation.annotation.LectureId;
+import org.example.lecutreAdminSystem.interfaces.api.common.validation.annotation.UserId;
+import org.example.lecutreAdminSystem.interfaces.api.common.validation.interfaces.*;
 
 import java.util.List;
 
@@ -11,8 +16,14 @@ import java.util.List;
 @Setter
 @Builder
 public class ApplyParam {
+
+    @ApplyId(groups = {RemoveApply.class})
     private Long applyId;
+
+    @UserId(groups = {SearchLectureStatusByApply.class, SaveApply.class, RemoveApply.class})
     private Long userId;
+
+    @LectureId(groups = {SearchLectureStatus.class, SearchLectureStatusByApply.class, SaveApply.class, RemoveApply.class, UpdateLecture.class})
     private Long lectureId;
 
     public static ApplyParam convertFromAPIToDomainDTO(Long applyId, Long userId, Long lectureId) {

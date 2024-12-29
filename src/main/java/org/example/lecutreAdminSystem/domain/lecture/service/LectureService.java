@@ -14,6 +14,10 @@ import org.example.lecutreAdminSystem.domain.common.exception.LectureInvalidExce
 import org.example.lecutreAdminSystem.domain.lecture.entity.Lecture;
 import org.example.lecutreAdminSystem.domain.lecture.repository.LectureRepository;
 import org.example.lecutreAdminSystem.interfaces.api.common.exception.error.ErrorCode;
+import org.example.lecutreAdminSystem.interfaces.api.common.validation.interfaces.SaveApply;
+import org.example.lecutreAdminSystem.interfaces.api.common.validation.interfaces.SearchLectureByDateAndTime;
+import org.example.lecutreAdminSystem.interfaces.api.common.validation.interfaces.SearchLectureStatus;
+import org.example.lecutreAdminSystem.interfaces.api.common.validation.interfaces.UpdateLecture;
 import org.springframework.stereotype.Service;
 import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
@@ -31,6 +35,7 @@ public class LectureService {
 
     private final ApplyRepository applyRepository;
 
+    @Validated(SearchLectureByDateAndTime.class)
     public List<Lecture> findLecturesByDateAndTime(@Valid LectureParam lectureParam) {
 
         LocalDate startDate = lectureParam.getStartDate();
@@ -95,12 +100,10 @@ public class LectureService {
 
     }
 
-    public void checkLectureApplyStatus(ApplyParam applyParam)  {
+    @Validated(SearchLectureStatus.class)
+    public void checkLectureApplyStatus(@Valid ApplyParam applyParam)  {
 
         long lectureId = applyParam.getLectureId();
-
-        // 강의 정보 유효성 검사
-        Lecture.validate(lectureId);
 
         // 해당 강의 아이디로 강의 조회
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(()->new LectureByIdNotFoundException(ErrorCode.LECTURE_NONE));
@@ -113,12 +116,10 @@ public class LectureService {
 
     }
 
-    public void checkLectureCancelStatus(ApplyParam applyParam)  {
+    @Validated(SearchLectureStatus.class)
+    public void checkLectureCancelStatus(@Valid ApplyParam applyParam)  {
 
         long lectureId = applyParam.getLectureId();
-
-        // 강의 정보 유효성 검사
-        Lecture.validate(lectureId);
 
         // 해당 강의 아이디로 강의 조회
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(()->new LectureByIdNotFoundException(ErrorCode.LECTURE_NONE));
@@ -128,13 +129,11 @@ public class LectureService {
 
     }
 
+    @Validated(UpdateLecture.class)
     @Transactional
-    public void saveLecture(ApplyParam applyParam, long dx) {
+    public void updateLecture(@Valid ApplyParam applyParam, long dx) {
 
         long lectureId = applyParam.getLectureId();
-
-        // 강의 정보 유효성 검사
-        Lecture.validate(lectureId);
 
         // 해당 강의 아이디로 강의 조회
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(()->new LectureByIdNotFoundException(ErrorCode.LECTURE_NONE));

@@ -9,6 +9,10 @@ public class ApplyIdValidator implements ConstraintValidator<ApplyId, Long> {
     @Override
     public boolean isValid(Long value, ConstraintValidatorContext constraintValidatorContext) {
 
+        if(value == null){
+            return false;
+        }
+
         if(value.longValue() <= 0){
             return false;
         }

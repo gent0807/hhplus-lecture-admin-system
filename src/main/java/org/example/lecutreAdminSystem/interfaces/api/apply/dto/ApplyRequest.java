@@ -1,6 +1,7 @@
 package org.example.lecutreAdminSystem.interfaces.api.apply.dto;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,8 +14,8 @@ import org.example.lecutreAdminSystem.interfaces.api.common.validation.annotatio
 @Builder
 public class ApplyRequest {
 
-    @ApplyId
     private Long applyId;
+
     @UserId
     private Long userId;
 

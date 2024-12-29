@@ -5,7 +5,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.lecutreAdminSystem.application.admin.lecture.dto.ApplyParam;
 import org.example.lecutreAdminSystem.application.admin.lecture.dto.ApplyResult;
-import org.example.lecutreAdminSystem.application.admin.lecture.dto.LectureParam;
 import org.example.lecutreAdminSystem.domain.apply.entity.Apply;
 import org.example.lecutreAdminSystem.domain.apply.repository.ApplyRepository;
 import org.example.lecutreAdminSystem.domain.common.exception.*;
@@ -13,6 +12,9 @@ import org.example.lecutreAdminSystem.domain.lecture.entity.Lecture;
 import org.example.lecutreAdminSystem.domain.lecture.repository.LectureRepository;
 import org.example.lecutreAdminSystem.domain.user.entity.User;
 import org.example.lecutreAdminSystem.interfaces.api.common.exception.error.ErrorCode;
+import org.example.lecutreAdminSystem.interfaces.api.common.validation.interfaces.RemoveApply;
+import org.example.lecutreAdminSystem.interfaces.api.common.validation.interfaces.SaveApply;
+import org.example.lecutreAdminSystem.interfaces.api.common.validation.interfaces.SearchLectureStatusByApply;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -27,11 +29,9 @@ public class ApplyService {
 
     private final LectureRepository lectureRepository;
 
-    public List<Apply> findCurrentApplies(@Valid LectureParam lectureParam) {
 
-        long userId = lectureParam.getUserId();
+    public List<Apply> findCurrentApplies(Long userId) {
 
-        // 유저 정보 정보 유효성 검사
         User.validate(userId);
 
         return applyRepository.findByUserId(userId).orElseThrow(()->new ApplyByUserIdNotFoundException(ErrorCode.APPLY_NONE));
@@ -52,24 +52,19 @@ public class ApplyService {
         return currentApplies.stream().map(apply -> apply.convertFromEntityToDomainDTO()).toList();
     }
 
-    public void checkLectureApplyStatus(ApplyParam applyParam){
-
-        long applyId = applyParam.getApplyId();
+    @Validated(SearchLectureStatusByApply.class)
+    public void checkLectureApplyStatus(@Valid ApplyParam applyParam){
 
         long userId = applyParam.getUserId();
 
         long lectureId = applyParam.getLectureId();
 
-        // 수강 신청 정보 유효성 검사
-        Apply.validate(applyId,userId,lectureId);
-
         // 수강 신청 목록에 해당 수강 신청 정보가 이미 있는지 확인
         if(applyRepository.existsByUserIdAndLectureId(userId, lectureId)){
-            throw new ApplyInvalidException(ErrorCode.APPLY_EXIST);
+            throw new LectureInvalidException(ErrorCode.APPLY_EXIST);
         }
 
         List<Apply> applies = applyRepository.findByUserId(userId).orElseThrow(()->new ApplyByUserIdNotFoundException(ErrorCode.APPLY_NONE));
-
 
         applies.stream().filter(apply ->
                 apply.getLectureId().longValue() != lectureId
@@ -82,7 +77,9 @@ public class ApplyService {
 
 
     }
-    public void checkLectureCancleStatus(ApplyParam applyParam) {
+
+    @Validated(SearchLectureStatusByApply.class)
+    public void checkLectureCancleStatus(@Valid ApplyParam applyParam) {
 
         long applyId = applyParam.getApplyId();
 
@@ -100,14 +97,12 @@ public class ApplyService {
 
     }
 
+    @Validated(SaveApply.class)
     @Transactional
-    public void saveApply(ApplyParam applyParam) {
+    public void saveApply(@Valid ApplyParam applyParam) {
 
         long userId = applyParam.getUserId();
         long lectureId = applyParam.getLectureId();
-
-        // 강의 정보 유효성 검사
-        Lecture.validate(lectureId);
 
         // 강의 테이블에서 해당 강의 아이디로 조회
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(()->new LectureByIdNotFoundException(ErrorCode.LECTURE_NONE));
@@ -125,11 +120,9 @@ public class ApplyService {
     }
 
 
+    @Validated(RemoveApply.class)
     @Transactional
-    public void removeApply(ApplyParam applyParam) {
-
-        // 수강 신청 정보 유효성 검사
-        Apply.validate(applyParam.getApplyId(),applyParam.getUserId(),applyParam.getLectureId());
+    public void removeApply(@Valid ApplyParam applyParam) {
 
 
         applyRepository.deleteByUserIdAndLectureId(applyParam.getUserId(), applyParam.getLectureId());

@@ -20,11 +20,23 @@ public class LectureController {
     private final LectureAdminFacade lectureAdminFacade;
 
     /**
+     * 특강 전체 목록을 다 보여주는데 사용자에 따른 수강신청 가능여부를 표시해서 보여준다.
+     * @param userId
+     * @return
+     */
+    @GetMapping("/all")
+    public ResponseEntity<List<LectureResponse>> findAllLecturesWithStatus(@RequestParam("userId") long userId){
+
+
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
+    /**
      * 특정 기간과, 특정 시간대를 조회 조건으로 하여 특강 목록 조회하되, 현재 로그인한 user에 따른 수강 신청 가능 여부를 표시해준다.
      * @param userId, startDate, endDate, startTime, endTime
      * @return ResponseEntity<List<LectureResponse>>
      */
-    @GetMapping("/all")
+    @GetMapping("/all/date/time")
     public ResponseEntity<List<LectureResponse>> findAllLecturesByDateAndTimeAndUserIdWithStatus(
             @RequestParam("userId") long userId, @RequestParam("startTime") String startTime,
             @RequestParam("endTime") String endTime, @RequestParam("startDate") String startDate,
