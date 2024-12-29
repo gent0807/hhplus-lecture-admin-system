@@ -22,7 +22,7 @@ public class ApplyTest {
     Apply apply = new Apply();
 
     @Test
-    void 수강_신청하려는_강의와_이미_수강신청된_강의의_강의일과_강의시간대_겹치면_ApplyInvalidException() {
+    void 수강_신청하려는_강의와_이미_수강신청된_강의의_강의일과_강의시간대_동일하면_ApplyInvalidException() {
 
         LocalDate date = LocalDate.now();
 
@@ -31,6 +31,31 @@ public class ApplyTest {
         LocalTime endTime = LocalTime.of(startTime.getHour() + 2, startTime.getMinute());
 
         setCheckingDuplicatedDateAndTime(date, startTime, endTime, date, startTime, endTime);
+
+        assertThatThrownBy(()->apply.checkDuplicatedDateAndTime(lecture))
+                .isExactlyInstanceOf(ApplyInvalidException.class)
+                .extracting("errorCode")
+                .isEqualTo(ErrorCode.LECTURE_DATE_TIME_DUPLICATED);
+
+        Mockito.verify(lecture).getDate();
+        Mockito.verify(lecture).getStartTime();
+        Mockito.verify(lecture).getEndTime();
+    }
+
+    @Test
+    void 수강_신청하려는_강의와_이미_수강신청된_강의의_강의일이_같고_강의_시작_시간과_종료_시간이_한_시간_씩_밀려서_겹치면_ApplyInvalidException() {
+
+        LocalDate date = LocalDate.now();
+
+        LocalTime startTimeToApply = LocalTime.of(14, LocalTime.now().getMinute());
+
+        LocalTime endTimeToApply = LocalTime.of(startTimeToApply.getHour() + 2, startTimeToApply.getMinute());
+
+        LocalTime startTimeApplied = LocalTime.of(startTimeToApply.getHour() + 1, LocalTime.now().getMinute());
+
+        LocalTime endTimeApplied = LocalTime.of(endTimeToApply.getHour() + 1, endTimeToApply.getMinute());
+
+        setCheckingDuplicatedDateAndTime(date, startTimeToApply, endTimeToApply, date, startTimeApplied, endTimeApplied);
 
         assertThatThrownBy(()->apply.checkDuplicatedDateAndTime(lecture))
                 .isExactlyInstanceOf(ApplyInvalidException.class)
@@ -105,8 +130,6 @@ public class ApplyTest {
         LocalTime startTimeToApply = LocalTime.of( endTimeApplied.getHour() +2, LocalTime.now().getMinute());
 
         LocalTime endTimeToApply = LocalTime.of(startTimeToApply.getHour() + 2, startTimeToApply.getMinute());
-
-
 
         setCheckingDuplicatedDateAndTime(lectureDateApplied, startTimeApplied, endTimeApplied, lectureDateToApply, startTimeToApply, endTimeToApply);
 
