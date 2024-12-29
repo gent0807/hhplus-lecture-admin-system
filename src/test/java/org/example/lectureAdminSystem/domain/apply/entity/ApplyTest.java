@@ -26,21 +26,21 @@ public class ApplyTest {
     }
 
     @Test
-    void 강의_id에_1보다_작은_값을_입력했을_때_AppplyInvalidException() {
+    void 강의_id에_1보다_작은_값을_입력했을_때_ApplyInvalidException() {
 
         assertThatIllegalArgumentException()
                 .isThrownBy(()->apply.validate(1L, 1L, 0L));
     }
 
     @Test
-    void 사용자_id에_1보다_작은_값을_입력했을_때_AppplyInvalidException() {
+    void 사용자_id에_1보다_작은_값을_입력했을_때_ApplyInvalidException() {
 
         assertThatIllegalArgumentException()
                 .isThrownBy(()->apply.validate(1L, 0L, 1L));
     }
 
     @Test
-    void 수강신청_하려는_강의와_이미_수강신청된_강의의_강의일과_강의시간대_겹치면_AppplyInvalidException() {
+    void 수강신청_하려는_강의와_이미_수강신청된_강의의_강의일과_강의시간대_겹치면_ApplyInvalidException() {
 
         LocalDate date = LocalDate.now();
 
