@@ -28,6 +28,7 @@ public class LectureTest {
                 .isThrownBy(()->lecture.checkStudentMaxCount());
     }
 
+
     @Test
     void 강의_현재_수강인원이_1명보다_작은_상황에서_최소_인원_수_확인하면_LectureInvalidException() {
 

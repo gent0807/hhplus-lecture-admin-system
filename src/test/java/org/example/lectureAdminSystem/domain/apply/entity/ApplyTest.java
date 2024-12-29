@@ -40,42 +40,34 @@ public class ApplyTest {
     }
 
     @Test
-    void 수강신청_하려는_강의와_이미_수강신청된_강의의_강의일과_강의시간대_확인시_겹치면_AppplyInvalidException() {
-
-        Lecture lectureSample = new Lecture();
+    void 수강신청_하려는_강의와_이미_수강신청된_강의의_강의일과_강의시간대_겹치면_AppplyInvalidException() {
 
         LocalDate date = LocalDate.now();
 
         LocalTime startTime = LocalTime.of(LocalTime.now().getHour(), LocalTime.now().getMinute());
 
-        LocalTime endTime = LocalTime.of(LocalTime.now().getHour() + 1, LocalTime.now().getMinute()).plusMinutes(30);
+        LocalTime endTime = LocalTime.of(startTime.getHour() + 2, startTime.getMinute());
 
-        lectureSample.setDate(date);
+        apply.setLectureDate(date);
 
-        lectureSample.setStartTime(startTime);
+        apply.setStartTime(startTime);
 
-        lectureSample.setEndTime(endTime);
-
-        apply.setLectureDate(lectureSample.getDate());
-
-        apply.setStartTime(lectureSample.getStartTime());
-
-        apply.setEndTime(lectureSample.getEndTime());
+        apply.setEndTime(endTime);
 
         when(lecture.getDate())
-                .thenReturn(lectureSample.getDate());
+                .thenReturn(date);
 
         when(lecture.getStartTime())
-            .thenReturn(lectureSample.getStartTime());
+            .thenReturn(startTime);
 
         when(lecture.getEndTime())
-                .thenReturn(lectureSample.getEndTime());
+                .thenReturn(endTime);
 
         assertThatIllegalArgumentException()
                 .isThrownBy(()->apply.checkDuplicatedDateAndTime(lecture));
 
-        Mockito.verify(lectureSample).setDate(date);
-        Mockito.verify(lectureSample).setStartTime(startTime);
-        Mockito.verify(lectureSample).setEndTime(endTime);
+        Mockito.verify(lecture).getDate();
+        Mockito.verify(lecture).getStartTime();
+        Mockito.verify(lecture).getEndTime();
     }
 }
