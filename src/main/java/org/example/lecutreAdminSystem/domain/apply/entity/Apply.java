@@ -32,6 +32,9 @@ public class Apply {
     @Column(name = "lecture_id", unique = true, nullable = false)
     private Long lectureId;
 
+    @Column(name = "lecture_name", nullable = false)
+    private String lectureName;
+
     @Column(name = "lecture_date", nullable = false)
     private LocalDate lectureDate;
 
@@ -54,11 +57,12 @@ public class Apply {
     private LocalDateTime updatedAt;
 
     public void validate(){
-        checkApplyId();
 
         checkUserId();
 
         checkLectureId();
+
+        checkLectureName();
 
         checkLectureDate();
 
@@ -88,6 +92,12 @@ public class Apply {
         }
     }
 
+    private void checkLectureName() {
+        if(this.lectureName == null){
+            throw new ApplyInvalidException(ErrorCode.LECTURE_NAME_NONE);
+        }
+    }
+
     public void checkLectureDate() {
         if(this.lectureDate == null){
             throw new ApplyInvalidException(ErrorCode.LECTURE_DATE_NONE);
@@ -112,6 +122,24 @@ public class Apply {
         }
     }
 
+    public static Apply of(long userId, long lectureId, String lectureName, LocalDate lectureDate, String room, Integer cost, LocalTime startTime, LocalTime endTime){
+
+        Apply apply = Apply.builder()
+                .userId(userId)
+                .lectureId(lectureId)
+                .lectureName(lectureName)
+                .lectureDate(lectureDate)
+                .room(room)
+                .cost(cost)
+                .startTime(startTime)
+                .endTime(endTime)
+                .build();
+
+        apply.validate();
+
+        return apply;
+    }
+
     public void checkDuplicatedDateAndTime(Lecture lecture) throws ApplyInvalidException{
 
         LocalDate date = lecture.getDate();
@@ -124,6 +152,8 @@ public class Apply {
             }
         }
     }
+
+
 
     public ApplyResult convertFromEntityToDomainDTO() {
         return new ApplyResult(

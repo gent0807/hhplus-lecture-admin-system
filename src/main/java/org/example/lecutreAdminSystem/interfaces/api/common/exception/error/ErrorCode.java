@@ -19,13 +19,20 @@ public enum ErrorCode {
     LECTURE_CURRENT_COUNT_INVALID(HttpStatus.NOT_ACCEPTABLE, "LECTURE_CURRENT_COUNT_INVALID", "유효하지 않은 현재 강의 인원입니다."),
     LECTURE_DATE_NONE(HttpStatus.NOT_ACCEPTABLE, "LECTURE_DATE_NONE", "강의일은 필수 사항입니다."),
     LECTURE_ROOM_NONE(HttpStatus.NOT_ACCEPTABLE, "LECTURE_ROOM_NONE", "강의실은 필수 사항입니다."),
-    
+    LECTURE_TIME_INVALID(HttpStatus.NOT_ACCEPTABLE, "TIME_INVALID", "시작 시각과 종료 시각을 올바르지 않습니다."),
+    LECTURE_NAME_NONE(HttpStatus.NOT_ACCEPTABLE, "LECTURE_NAME_NONE", "강의명은 필수입니다."),
+    LECTURE_TEACHER_NONE(HttpStatus.NOT_ACCEPTABLE, "LECTURE_TEACHER_NONE", "강연자는 필수입니다."),
+    LECTURE_CURRENT_COUNT_NONE(HttpStatus.NOT_ACCEPTABLE, "LECTURE_CURRENT_COUNT_NONE", "현재 수강 인원은 필수입니다."),
+    LECTURE_START_TIME_NONE(HttpStatus.NOT_ACCEPTABLE, "LECTURE_START_TIME_NONE", "강의 시작 시각은 필수입니다." ),
+    LECTURE_END_TIME_NONE(HttpStatus.NOT_ACCEPTABLE, "LECTURE_END_TIME_NONE", "강의 종료 시각은 필수입니다."),
+
+
     APPLY_ID_INVALID(HttpStatus.BAD_REQUEST, "APPLY_ID_INVALID", "유효하지 않은 수강신청 아이디입니다."),
     APPLY_ALREADY_END(HttpStatus.NOT_ACCEPTABLE, "APPLY_ALREADY_END", "수강신청 기간이 이미 종료되었습니다."),
     APPLY_EXIST(HttpStatus.NOT_ACCEPTABLE, "APPLY_EXIST", "이미 동일한 강의를 수강신청하였습니다."),
-    APPLY_NONE(HttpStatus.NOT_FOUND, "APPLY_NONE", "수강신청 정보가 존재하지 않습니다."),
-    LECTURE_TIME_INVALID(HttpStatus.BAD_REQUEST, "TIME_INVALID", "시작 시각과 종료 시각을 올바르지 않습니다.");
-    
+    APPLY_NONE(HttpStatus.NOT_FOUND, "APPLY_NONE", "수강신청 정보가 존재하지 않습니다.");
+
+
     private final HttpStatus httpStatus;	// HttpStatus
     private final String code;
     private final String message;

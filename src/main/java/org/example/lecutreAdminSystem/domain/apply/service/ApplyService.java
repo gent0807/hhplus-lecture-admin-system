@@ -98,20 +98,9 @@ public class ApplyService {
         // 강의 테이블에서 해당 강의 아이디로 조회
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(()->new LectureByIdNotFoundException(ErrorCode.LECTURE_NONE));
 
-        Apply applyToSave = Apply.builder()
-                .userId(userId)
-                .lectureId(lecture.getLectureId())
-                .lectureDate(lecture.getDate())
-                .room(lecture.getRoom())
-                .cost(lecture.getCost())
-                .startTime(lecture.getStartTime())
-                .endTime(lecture.getEndTime())
-                .build();
-
-        applyToSave.validate();
-
         // 수강 신청 테이블에 수강 신청정보 저장
-        applyRepository.save(applyToSave);
+        applyRepository.save(Apply.of(userId, lectureId, lecture.getLectureName(),
+                lecture.getDate(),lecture.getRoom(), lecture.getCost(), lecture.getStartTime(), lecture.getEndTime()));
     }
 
 
