@@ -66,9 +66,7 @@ public class LectureService {
             LECTURE_STATUS lectureStatus = LECTURE_STATUS.ON;
             
             try {
-               lecture.checkStudentMaxCount();
-               lecture.checkStudentMinCount();
-               lecture.checkLectureDate();
+               lecture.validate();
             }catch (LectureInvalidException e){
                 lectureStatus = LECTURE_STATUS.OFF;
             }

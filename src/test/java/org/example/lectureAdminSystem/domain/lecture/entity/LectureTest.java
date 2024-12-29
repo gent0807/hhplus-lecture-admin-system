@@ -21,7 +21,7 @@ public class LectureTest {
 
         lecture.setLectureId(0L);
 
-        assertThatThrownBy(()->lecture.validate())
+        assertThatThrownBy(()->lecture.checkLectureId())
                 .isExactlyInstanceOf(LectureInvalidException.class)
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.LECTURE_ID_INVALID);

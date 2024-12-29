@@ -62,7 +62,7 @@ public class Lecture {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    public void validate() {
+    public void validate() throws LectureInvalidException{
 
         checkLectureName();
 
@@ -90,20 +90,20 @@ public class Lecture {
 
     }
 
-    private void checkLectureName() {
+    private void checkLectureName() throws LectureInvalidException{
         if(this.lectureName == null){
             throw new ApplyInvalidException(ErrorCode.LECTURE_NAME_NONE);
         }
     }
 
-    private void checkTeacher() {
+    private void checkTeacher() throws LectureInvalidException{
         if(this.teacher == null){
             throw new LectureInvalidException(ErrorCode.LECTURE_TEACHER_NONE);
         }
     }
 
 
-    private void checkStudentCurrentCount() {
+    private void checkStudentCurrentCount() throws LectureInvalidException{
         if(this.currentStudentCount == null){
             throw new LectureInvalidException(ErrorCode.LECTURE_CURRENT_COUNT_NONE);
         }
@@ -137,7 +137,7 @@ public class Lecture {
         }
     }
 
-    private void checkLectureRoom() {
+    private void checkLectureRoom() throws LectureInvalidException{
         if(this.room == null){
             throw new LectureInvalidException(ErrorCode.LECTURE_ROOM_NONE);
         }
