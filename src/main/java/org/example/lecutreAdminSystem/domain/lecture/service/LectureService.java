@@ -65,10 +65,10 @@ public class LectureService {
             
             LECTURE_STATUS lectureStatus = LECTURE_STATUS.ON;
             
-            try{
-                lecture.checkStudentMaxCount();
-                lecture.checkStudentMinCount();
-                lecture.checkLectureDate();
+            try {
+               lecture.checkStudentMaxCount();
+               lecture.checkStudentMinCount();
+               lecture.checkLectureDate();
             }catch (LectureInvalidException e){
                 lectureStatus = LECTURE_STATUS.OFF;
             }
@@ -78,7 +78,7 @@ public class LectureService {
                 lectureStatus = LECTURE_STATUS.OFF;
             }
             
-            // 현재 유저의 수강 신청 목록에 있는 강의들 중 확인중인 강의와 강의 날짜가 같고 강의 시간대가 겹치는 것이 하나라도 있는지 확인
+            // 현재 유저의 수강 신청 목록에 있는 강의들 중 현재 수강 신청하려 확인 중인 강의와 강의 날짜가 같고 강의 시간대가 겹치는 것이 하나라도 있는지 확인
             if(currentApplies.stream().filter(apply -> apply.getLectureId().longValue() != lecture.getLectureId().longValue())
                     .filter(apply -> apply.getLectureDate().equals(lecture.getDate()))
                     .map(apply -> {

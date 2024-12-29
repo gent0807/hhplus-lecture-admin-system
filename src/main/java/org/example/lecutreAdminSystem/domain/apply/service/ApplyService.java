@@ -32,14 +32,10 @@ public class ApplyService {
 
     public List<Apply> findCurrentApplies(Long userId) {
 
-        User.validate(userId);
-
         return applyRepository.findByUserId(userId).orElseThrow(()->new ApplyByUserIdNotFoundException(ErrorCode.APPLY_NONE));
     }
 
     public List<ApplyResult> findCurrentAppliesByUserIdAndLectureId(ApplyParam applyParam){
-
-        Apply.validate(applyParam.getApplyId(), applyParam.getUserId(), applyParam.getLectureId());
 
         return applyRepository.findByUserIdAndLectureId(applyParam.getUserId(), applyParam.getLectureId())
                 .orElseThrow(()->new ApplyByUserIdAndLectureIdNotFoundException(ErrorCode.APPLY_NONE))
@@ -81,14 +77,9 @@ public class ApplyService {
     @Validated(SearchLectureStatusByApply.class)
     public void checkLectureCancleStatus(@Valid ApplyParam applyParam) {
 
-        long applyId = applyParam.getApplyId();
-
         long userId = applyParam.getUserId();
 
         long lectureId = applyParam.getLectureId();
-
-        // 수강 신청 정보 유효성 검증
-        Apply.validate(applyId, userId, lectureId);
 
         // 수강 신청 목록에 수강 취소하려는 수강 신청 정보가 있는지 확인
         if(!applyRepository.existsByUserIdAndLectureId(userId, lectureId)){
@@ -107,16 +98,20 @@ public class ApplyService {
         // 강의 테이블에서 해당 강의 아이디로 조회
         Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(()->new LectureByIdNotFoundException(ErrorCode.LECTURE_NONE));
 
+        Apply applyToSave = Apply.builder()
+                .userId(userId)
+                .lectureId(lecture.getLectureId())
+                .lectureDate(lecture.getDate())
+                .room(lecture.getRoom())
+                .cost(lecture.getCost())
+                .startTime(lecture.getStartTime())
+                .endTime(lecture.getEndTime())
+                .build();
+
+        applyToSave.validate();
+
         // 수강 신청 테이블에 수강 신청정보 저장
-        applyRepository.save(Apply.builder()
-                        .userId(userId)
-                        .lectureId(lecture.getLectureId())
-                        .lectureDate(lecture.getDate())
-                        .room(lecture.getRoom())
-                        .cost(lecture.getCost())
-                        .startTime(lecture.getStartTime())
-                        .endTime(lecture.getEndTime())
-                        .build());
+        applyRepository.save(applyToSave);
     }
 
 

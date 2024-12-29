@@ -9,5 +9,6 @@ import org.example.lecutreAdminSystem.interfaces.api.common.exception.error.Erro
 @Setter
 @AllArgsConstructor
 public class LectureInvalidException extends IllegalArgumentException{
+
     ErrorCode errorCode;
 }

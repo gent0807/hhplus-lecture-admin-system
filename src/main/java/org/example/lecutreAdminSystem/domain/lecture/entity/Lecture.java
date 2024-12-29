@@ -59,21 +59,59 @@ public class Lecture {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    public static void validate(long lectureId)  {
-        if(lectureId <= 0){
+    public void validate() {
+
+        checkLectureId();
+
+        checkLectureTime();
+
+        checkStudentMaxCount();
+
+        checkStudentMinCount();
+
+        checkLectureCost();
+
+
+    }
+
+    public void checkLectureId() throws LectureInvalidException{
+        if(this.lectureId <= 0){
             throw new LectureInvalidException(ErrorCode.LECTURE_ID_INVALID);
+        }
+
+    }
+
+    public void checkLectureTime() throws LectureInvalidException{
+        if(this.startTime.isAfter(this.endTime)){
+            throw new LectureInvalidException(ErrorCode.LECTURE_TIME_INVALID);
         }
     }
 
     public void checkStudentMaxCount() throws LectureInvalidException {
+
+        if(this.maxStudentCount <= 0){
+            throw new LectureInvalidException(ErrorCode.LECTURE_MAX_COUNT_INVALID);
+        }
+
         if(this.currentStudentCount >= this.maxStudentCount){
             throw new LectureInvalidException(ErrorCode.LECTURE_OVER_MAX_STUDENT);
         }
     }
 
     public void checkStudentMinCount() throws LectureInvalidException {
+
+        if(this.currentStudentCount < 0){
+            throw new LectureInvalidException(ErrorCode.LECTURE_CURRENT_COUNT_INVALID);
+        }
+
         if(this.currentStudentCount < 1){
             throw new LectureInvalidException(ErrorCode.LECTURE_UNDER_MIN_STUDENT);
+        }
+    }
+
+    public void checkLectureCost() throws LectureInvalidException{
+        if(this.cost < 0){
+            throw new LectureInvalidException(ErrorCode.LECTURE_COST_INVALID);
         }
     }
 

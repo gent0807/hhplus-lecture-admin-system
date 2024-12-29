@@ -53,17 +53,62 @@ public class Apply {
     @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
 
-    public static void validate(long applyId, long userId, long lectureId){
-        if(applyId <= 0){
+    public void validate(){
+        checkApplyId();
+
+        checkUserId();
+
+        checkLectureId();
+
+        checkLectureDate();
+
+        checkLectureRoom();
+
+        checkLectureCost();
+
+        checkLectureTime();
+
+    }
+
+    public void checkApplyId() {
+        if(this.applyId <= 0){
             throw new ApplyInvalidException(ErrorCode.APPLY_ID_INVALID);
         }
+    }
 
-        if(userId <= 0){
+    public void checkUserId() {
+        if(this.userId <= 0){
             throw new ApplyInvalidException(ErrorCode.USER_ID_INVALID);
         }
+    }
 
-        if(lectureId <= 0){
+    private void checkLectureId() {
+        if(this.lectureId <= 0){
             throw new ApplyInvalidException(ErrorCode.LECTURE_ID_INVALID);
+        }
+    }
+
+    public void checkLectureDate() {
+        if(this.lectureDate == null){
+            throw new ApplyInvalidException(ErrorCode.LECTURE_DATE_NONE);
+        }
+    }
+
+    public void checkLectureRoom() {
+        if(this.room == null){
+            throw new ApplyInvalidException(ErrorCode.LECTURE_ROOM_NONE);
+        }
+    }
+
+    public void checkLectureCost() {
+        if(this.cost < 0){
+            throw new ApplyInvalidException(ErrorCode.LECTURE_COST_INVALID);
+        }
+    }
+
+    public void checkLectureTime() {
+        if(this.startTime.isAfter(this.endTime)){
+            throw new ApplyInvalidException(ErrorCode.LECTURE_TIME_INVALID);
         }
     }
 

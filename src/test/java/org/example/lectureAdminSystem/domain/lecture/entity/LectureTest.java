@@ -1,11 +1,14 @@
 package org.example.lectureAdminSystem.domain.lecture.entity;
 
+import org.example.lecutreAdminSystem.domain.common.exception.LectureInvalidException;
 import org.example.lecutreAdminSystem.domain.lecture.entity.Lecture;
+import org.example.lecutreAdminSystem.interfaces.api.common.exception.error.ErrorCode;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 
@@ -15,8 +18,16 @@ public class LectureTest {
 
     @Test
     void 강의_id에_1보다_작은_값을_입력했을_때_LectureInvalidException() {
-        assertThatIllegalArgumentException()
-                .isThrownBy(()->lecture.validate(-1L));
+
+        lecture.setLectureId(0L);
+
+        assertThatThrownBy(()->lecture.validate())
+                .isExactlyInstanceOf(LectureInvalidException.class)
+                .extracting("errorCode")
+                .isEqualTo(ErrorCode.LECTURE_ID_INVALID);
+
+
+
     }
 
     @Test
@@ -26,8 +37,10 @@ public class LectureTest {
 
         lecture.setCurrentStudentCount(lecture.getMaxStudentCount() + 1L);
 
-        assertThatIllegalArgumentException()
-                .isThrownBy(()->lecture.checkStudentMaxCount());
+        assertThatThrownBy(()->lecture.checkStudentMaxCount())
+                .isExactlyInstanceOf(LectureInvalidException.class)
+                .extracting("errorCode")
+                .isEqualTo(ErrorCode.LECTURE_OVER_MAX_STUDENT);
     }
 
 
@@ -36,8 +49,10 @@ public class LectureTest {
 
         lecture.setCurrentStudentCount(0L);
 
-        assertThatIllegalArgumentException()
-                .isThrownBy(()->lecture.checkStudentMinCount());
+        assertThatThrownBy(()->lecture.checkStudentMinCount())
+                .isExactlyInstanceOf(LectureInvalidException.class)
+                        .extracting("errorCode")
+                                .isEqualTo(ErrorCode.LECTURE_UNDER_MIN_STUDENT);
     }
 
     @Test
@@ -45,7 +60,9 @@ public class LectureTest {
 
         lecture.setDate(LocalDate.now().minusDays(1L));
 
-        assertThatIllegalArgumentException()
-                .isThrownBy(()->lecture.checkLectureDate());
+        assertThatThrownBy(()->lecture.checkLectureDate())
+                .isExactlyInstanceOf(LectureInvalidException.class)
+                .extracting("errorCode")
+                .isEqualTo(ErrorCode.APPLY_ALREADY_END);
     }
 }
