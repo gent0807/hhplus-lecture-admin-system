@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.example.lecutreAdminSystem.application.admin.lecture.dto.LectureResult;
 import org.example.lecutreAdminSystem.application.admin.lecture.enumeration.LECTURE_STATUS;
+import org.example.lecutreAdminSystem.domain.common.exception.LectureInvalidException;
 import org.example.lecutreAdminSystem.domain.teacher.entity.Teacher;
-import org.example.lecutreAdminSystem.interfaces.api.common.exception.CustomException;
 import org.example.lecutreAdminSystem.interfaces.api.common.exception.error.ErrorCode;
 
 import java.time.LocalDate;
@@ -61,27 +61,27 @@ public class Lecture {
 
     public static void validate(long lectureId)  {
         if(lectureId <= 0){
-            throw new CustomException(ErrorCode.LECTURE_ID_INVALID);
+            throw new LectureInvalidException(ErrorCode.LECTURE_ID_INVALID);
         }
     }
 
-    public void checkStudentMaxCount() throws CustomException{
+    public void checkStudentMaxCount() throws LectureInvalidException {
         if(this.currentStudentCount >= this.maxStudentCount){
-            throw new CustomException(ErrorCode.LECTURE_OVER_MAX_STUDENT);
+            throw new LectureInvalidException(ErrorCode.LECTURE_OVER_MAX_STUDENT);
         }
     }
 
-    public void checkStudentMinCount() throws CustomException {
+    public void checkStudentMinCount() throws LectureInvalidException {
         if(this.currentStudentCount < 1){
-            throw new CustomException(ErrorCode.LECTURE_UNDER_MIN_STUDENT);
+            throw new LectureInvalidException(ErrorCode.LECTURE_UNDER_MIN_STUDENT);
         }
     }
 
-    public void checkLectureDate() throws CustomException{
+    public void checkLectureDate() throws LectureInvalidException{
         LocalDate today = LocalDate.now();
 
         if(today.isAfter(this.date) || today.isEqual(this.date)){
-            throw new CustomException(ErrorCode.APPLY_ALREADY_END);
+            throw new LectureInvalidException(ErrorCode.APPLY_ALREADY_END);
         }
     }
 

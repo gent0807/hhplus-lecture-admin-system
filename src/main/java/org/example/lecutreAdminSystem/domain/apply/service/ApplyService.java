@@ -6,10 +6,10 @@ import org.example.lecutreAdminSystem.application.admin.lecture.dto.ApplyParam;
 import org.example.lecutreAdminSystem.application.admin.lecture.dto.ApplyResult;
 import org.example.lecutreAdminSystem.domain.apply.entity.Apply;
 import org.example.lecutreAdminSystem.domain.apply.repository.ApplyRepository;
+import org.example.lecutreAdminSystem.domain.common.exception.*;
 import org.example.lecutreAdminSystem.domain.lecture.entity.Lecture;
 import org.example.lecutreAdminSystem.domain.lecture.repository.LectureRepository;
 import org.example.lecutreAdminSystem.domain.user.entity.User;
-import org.example.lecutreAdminSystem.interfaces.api.common.exception.CustomException;
 import org.example.lecutreAdminSystem.interfaces.api.common.exception.error.ErrorCode;
 import org.springframework.stereotype.Service;
 
@@ -28,14 +28,14 @@ public class ApplyService {
         // 유저 정보 정보 유효성 검사
         User.validate(userId);
 
-        return applyRepository.findByUserId(userId).orElseThrow(()->new CustomException(ErrorCode.APPLY_NONE));
+        return applyRepository.findByUserId(userId).orElseThrow(()->new ApplyByUserIdNotFoundException(ErrorCode.APPLY_NONE));
     }
 
     public List<Apply> findCurrentAppliesByUserIdAndLectureId(Long applyId, Long userId, Long lectureId){
 
         Apply.validate(applyId, userId, lectureId);
 
-        return applyRepository.findByUserIdAndLectureId(userId, lectureId).orElseThrow(()->new CustomException(ErrorCode.APPLY_NONE));
+        return applyRepository.findByUserIdAndLectureId(userId, lectureId).orElseThrow(()->new ApplyByUserIdAndLectureIdNotFoundException(ErrorCode.APPLY_NONE));
 
 
     }
@@ -51,17 +51,17 @@ public class ApplyService {
 
         // 수강 신청 목록에 해당 수강 신청 정보가 이미 있는지 확인
         if(applyRepository.existsByUserIdAndLectureId(userId, lectureId)){
-            throw new CustomException(ErrorCode.APPLY_EXIST);
+            throw new ApplyInvalidException(ErrorCode.APPLY_EXIST);
         }
 
-        List<Apply> applies = applyRepository.findByUserId(userId).orElseThrow(()->new CustomException(ErrorCode.APPLY_NONE));
+        List<Apply> applies = applyRepository.findByUserId(userId).orElseThrow(()->new ApplyByUserIdNotFoundException(ErrorCode.APPLY_NONE));
 
 
         applies.stream().filter(apply ->
                 apply.getLectureId().longValue() != lectureId.longValue()
         ).forEach(apply -> {
 
-            apply.checkDurableDateAndTime(lectureRepository.findById(lectureId).orElseThrow(()->new CustomException(ErrorCode.LECTURE_NONE)));
+            apply.checkDuplicatedDateAndTime(lectureRepository.findById(lectureId).orElseThrow(()->new ApplyByLectureIdNotFoundException(ErrorCode.LECTURE_NONE)));
 
 
         });
@@ -75,7 +75,7 @@ public class ApplyService {
 
         // 수강 신청 목록에 수강 취소하려는 수강 신청 정보가 있는지 확인
         if(!applyRepository.existsByUserIdAndLectureId(userId, lectureId)){
-            throw new CustomException(ErrorCode.APPLY_NONE);
+            throw new ApplyInvalidException(ErrorCode.APPLY_NONE);
         }
 
     }
@@ -87,7 +87,7 @@ public class ApplyService {
         Lecture.validate(lectureId);
 
         // 강의 테이블에서 해당 강의 아이디로 조회
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(()->new CustomException(ErrorCode.LECTURE_NONE));
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(()->new LectureByIdNotFoundException(ErrorCode.LECTURE_NONE));
 
         // 수강 신청 테이블에 수강 신청정보 저장
         applyRepository.save(Apply.builder()
