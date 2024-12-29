@@ -12,13 +12,13 @@ public class LectureTest {
     Lecture lecture = new Lecture();
 
     @Test
-    void 강의_id에_1보다_작은_값을_입력했을_때_CustomException() {
+    void 강의_id에_1보다_작은_값을_입력했을_때_LectureInvalidException() {
         assertThatIllegalArgumentException()
                 .isThrownBy(()->lecture.validate(-1L));
     }
 
     @Test
-    void 강의_최대_인원_수_보다_수강_신청_인원_수가_많은_상황에서_최대_인원_수_확인하면_CustomException() {
+    void 강의_최대_인원_수_보다_수강_신청_인원_수가_많은_상황에서_최대_인원_수_확인하면_LectureInvalidException() {
 
         lecture.setMaxStudentCount(30L);
 
@@ -29,7 +29,7 @@ public class LectureTest {
     }
 
     @Test
-    void 강의_현재_수강인원이_1명보다_작은_상황에서_최소_인원_수_확인하면_CustomException() {
+    void 강의_현재_수강인원이_1명보다_작은_상황에서_최소_인원_수_확인하면_LectureInvalidException() {
 
         lecture.setCurrentStudentCount(0L);
 
@@ -38,7 +38,7 @@ public class LectureTest {
     }
 
     @Test
-    void 강의일이_오늘_이전인_상황에서_강의일_확인하면_customException() {
+    void 강의일이_오늘_이전인_상황에서_강의일_확인하면_LectureInvalidException() {
 
         lecture.setMaxStudentCount(30L);
 
