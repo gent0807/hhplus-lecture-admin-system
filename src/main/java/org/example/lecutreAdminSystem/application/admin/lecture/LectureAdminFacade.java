@@ -39,9 +39,9 @@ public class LectureAdminFacade {
         List<Apply> currentApplies = applyService.findCurrentApplies(lectureParam.getUserId());
 
         // 특정 기간, 특정 시간대에 진행되는 특강 목록을 가져온다.
-        List<Lecture> lecturesByDateAndTime = lectureService.findLecturesByDateAndTime(lectureParam.getStartDate(), lectureParam.getEndDate(), lectureParam.getStartTime(), lectureParam.getEndTime());
+        List<Lecture> lecturesByDateAndTime = lectureService.findLecturesByDateAndTime(lectureParam);
 
-        // 특강 목록에 수강 신청 가능 상태를 표시해준다.
+        // 특강 목록에 수강 신청 가능 상태를 표시해주고, 엔티티를 DTO 형식으로 변환해 반환해준다.
         return lectureService.findLecturesWithStatus(currentApplies, lecturesByDateAndTime);
     }
 
@@ -52,12 +52,8 @@ public class LectureAdminFacade {
      */
     public List<ApplyResult> findCurrentAppliesByUserIdAndLectureId(ApplyParam applyParam) {
 
-        // 1. 특정 사용자 혹은 특정 강의에 대한 현재 수강 신청 목록(현황)을 조회한다.
-        List<Apply> currentApplies = applyService.findCurrentAppliesByUserIdAndLectureId(applyParam.getApplyId(), applyParam.getUserId(), applyParam.getLectureId());
-
-        // 2. 엔티티를 DTO 형식으로 옮겨준다.
-        return applyService.convertToDTOList(currentApplies);
-
+        // 1. 특정 사용자 혹은 특정 강의에 대한 현재 수강 신청 목록(현황)을 찾고, DTO형식으로 변환시켜 반환해준다.
+        return applyService.findCurrentAppliesByUserIdAndLectureId(applyParam);
     }
 
     /**
@@ -78,16 +74,16 @@ public class LectureAdminFacade {
 
 
         // 수강 신청하려는 강의 자체가 수강 가능한 지 확인
-        lectureService.checkLectureApplyStatus(applyParam.getLectureId());
+        lectureService.checkLectureApplyStatus(applyParam);
 
-        // 수강 신청 목록에 대조하여 강의의 수강 가능 여부 확인
-        applyService.checkLectureApplyStatus(applyParam.getApplyId(), applyParam.getUserId(), applyParam.getLectureId());
+        // 사용자의 수강 신청 목록에 대조하여 강의의 수강 가능 여부 확인
+        applyService.checkLectureApplyStatus(applyParam);
 
         // 2. 수강 신청한다.
-        applyService.saveApply(applyParam.getUserId(), applyParam.getLectureId());
+        applyService.saveApply(applyParam);
 
         // 3. 수강 신청 성공한 강의는 현재 수강 인원을 증산한다.
-        lectureService.saveLecture(applyParam.getLectureId(), 1);
+        lectureService.updateLecture(applyParam, 1);
 
     }
 
@@ -101,17 +97,16 @@ public class LectureAdminFacade {
         // 2. 수강 취소하려는 강의의 현재 수강 인원이 1명 이상인지 확인, 1명 미만이면 exception
 
         // 수강 취소하려는 강의 자체가 수강 취소 가능한 상태인지 확인
-        lectureService.checkLectureCancelStatus(applyParam.getLectureId());
+        lectureService.checkLectureCancelStatus(applyParam);
 
         // 수강 신청 목록에 대조하여 강의의 수강 취소 가능 여부 확인
-        applyService.checkLectureCancleStatus(applyParam.getApplyId(), applyParam.getUserId(), applyParam.getLectureId());
-
+        applyService.checkLectureCancleStatus(applyParam);
 
         // 3. 수강 취소한다.
         applyService.removeApply(applyParam);
 
         // 4. 수강 취소 성공한 강의는 현재 수강 인원을 감산한다.
-        lectureService.saveLecture(applyParam.getLectureId(), -1L);
+        lectureService.updateLecture(applyParam, -1L);
 
 
     }
