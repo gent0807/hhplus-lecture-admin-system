@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.example.lecutreAdminSystem.application.admin.lecture.dto.LectureResult;
 import org.example.lecutreAdminSystem.application.admin.lecture.enumeration.LECTURE_STATUS;
+import org.example.lecutreAdminSystem.domain.common.exception.ApplyInvalidException;
+import org.example.lecutreAdminSystem.domain.common.exception.LectureInvalidException;
 import org.example.lecutreAdminSystem.domain.teacher.entity.Teacher;
+import org.example.lecutreAdminSystem.interfaces.api.common.exception.error.ErrorCode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,7 +16,9 @@ import java.time.LocalTime;
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
+@Builder
+@AllArgsConstructor
 @Entity
 @Table(name = "LECTURES")
 public class Lecture {
@@ -57,30 +62,127 @@ public class Lecture {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    public static void validate(long lectureId) throws IllegalArgumentException {
-        if(lectureId <= 0){
-            throw new IllegalArgumentException();
+    public void validate() throws LectureInvalidException{
+
+        checkLectureName();
+
+        checkTeacher();
+
+        checkStudentCurrentCount();
+
+        checkStudentMaxCount();
+
+        checkLectureCost();
+
+        checkLectureRoom();
+
+        checkLectureDate();
+
+        checkLectureTime();
+
+
+    }
+
+    public void checkLectureId() throws LectureInvalidException{
+        if(this.lectureId <= 0){
+            throw new LectureInvalidException(ErrorCode.LECTURE_ID_INVALID);
+        }
+
+    }
+
+    private void checkLectureName() throws LectureInvalidException{
+        if(this.lectureName == null){
+            throw new ApplyInvalidException(ErrorCode.LECTURE_NAME_NONE);
         }
     }
 
-    public void checkStudentMaxCount() throws IllegalArgumentException {
+    private void checkTeacher() throws LectureInvalidException{
+        if(this.teacher == null){
+            throw new LectureInvalidException(ErrorCode.LECTURE_TEACHER_NONE);
+        }
+    }
+
+
+    private void checkStudentCurrentCount() throws LectureInvalidException{
+        if(this.currentStudentCount == null){
+            throw new LectureInvalidException(ErrorCode.LECTURE_CURRENT_COUNT_NONE);
+        }
+    }
+
+    public void checkStudentMaxCount() throws LectureInvalidException {
+
+        if(this.maxStudentCount <= 0){
+            throw new LectureInvalidException(ErrorCode.LECTURE_MAX_COUNT_INVALID);
+        }
+
         if(this.currentStudentCount >= this.maxStudentCount){
-            throw new IllegalArgumentException();
+            throw new LectureInvalidException(ErrorCode.LECTURE_OVER_MAX_STUDENT);
         }
     }
 
-    public void checkLectureDate() throws IllegalArgumentException{
+    public void checkStudentMinCount() throws LectureInvalidException {
+
+        if(this.currentStudentCount < 0){
+            throw new LectureInvalidException(ErrorCode.LECTURE_CURRENT_COUNT_INVALID);
+        }
+
+        if(this.currentStudentCount < 1){
+            throw new LectureInvalidException(ErrorCode.LECTURE_UNDER_MIN_STUDENT);
+        }
+    }
+
+    public void checkLectureCost() throws LectureInvalidException{
+        if(this.cost < 0){
+            throw new LectureInvalidException(ErrorCode.LECTURE_COST_INVALID);
+        }
+    }
+
+    private void checkLectureRoom() throws LectureInvalidException{
+        if(this.room == null){
+            throw new LectureInvalidException(ErrorCode.LECTURE_ROOM_NONE);
+        }
+    }
+
+    public void checkLectureDate() throws LectureInvalidException{
         LocalDate today = LocalDate.now();
 
-        if(today.isAfter(this.date)){
-            throw new IllegalArgumentException();
+        if(today.isAfter(this.date) || today.isEqual(this.date)){
+            throw new LectureInvalidException(ErrorCode.APPLY_ALREADY_END);
         }
     }
 
-    public void checkStudentMinCount() throws IllegalArgumentException{
-        if(this.currentStudentCount < 1){
-            throw new IllegalArgumentException();
+    public void checkLectureTime() throws LectureInvalidException{
+
+        if(this.startTime == null){
+            throw new LectureInvalidException(ErrorCode.LECTURE_START_TIME_NONE);
         }
+
+        if(this.endTime == null){
+            throw new LectureInvalidException(ErrorCode.LECTURE_END_TIME_NONE);
+        }
+
+        if(this.startTime.isAfter(this.endTime)){
+            throw new LectureInvalidException(ErrorCode.LECTURE_TIME_INVALID);
+        }
+    }
+
+    public static Lecture of(String lectureName, Teacher teacher, Long currentStudentCount, Long maxStudentCount, Integer cost, String room, LocalDate date, LocalTime startTime, LocalTime endTime){
+
+        Lecture lecture = Lecture.builder()
+                .lectureName(lectureName)
+                .teacher(teacher)
+                .currentStudentCount(currentStudentCount)
+                .maxStudentCount(maxStudentCount)
+                .cost(cost)
+                .room(room)
+                .date(date)
+                .startTime(startTime)
+                .endTime(endTime)
+                .build();
+
+        lecture.validate();
+
+        return lecture;
     }
 
     public LectureResult convertFromEntityToDomainDTO(LECTURE_STATUS status){

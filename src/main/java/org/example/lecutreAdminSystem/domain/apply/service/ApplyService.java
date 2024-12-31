@@ -1,45 +1,46 @@
 package org.example.lecutreAdminSystem.domain.apply.service;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.lecutreAdminSystem.application.admin.lecture.dto.ApplyParam;
 import org.example.lecutreAdminSystem.application.admin.lecture.dto.ApplyResult;
 import org.example.lecutreAdminSystem.domain.apply.entity.Apply;
 import org.example.lecutreAdminSystem.domain.apply.repository.ApplyRepository;
+import org.example.lecutreAdminSystem.domain.common.exception.*;
 import org.example.lecutreAdminSystem.domain.lecture.entity.Lecture;
 import org.example.lecutreAdminSystem.domain.lecture.repository.LectureRepository;
 import org.example.lecutreAdminSystem.domain.user.entity.User;
+import org.example.lecutreAdminSystem.interfaces.api.common.exception.error.ErrorCode;
+import org.example.lecutreAdminSystem.interfaces.api.common.validation.interfaces.RemoveApply;
+import org.example.lecutreAdminSystem.interfaces.api.common.validation.interfaces.SaveApply;
+import org.example.lecutreAdminSystem.interfaces.api.common.validation.interfaces.SearchLectureStatusByApply;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Validated
 public class ApplyService {
 
     private final ApplyRepository applyRepository;
 
     private final LectureRepository lectureRepository;
 
-    public List<Apply> findCurrentApplies(Long userId) throws IllegalArgumentException{
 
-        // 유저 정보 정보 유효성 검사
-        User.validate(userId);
+    public List<Apply> findCurrentApplies(Long userId) {
 
-        return applyRepository.findByUserId(userId);
+        return applyRepository.findByUserId(userId).orElseThrow(()->new ApplyByUserIdNotFoundException(ErrorCode.APPLY_NONE));
     }
 
-    public List<Apply> findCurrentAppliesByUserIdAndLectureId(Long applyId, Long userId, Long lectureId){
+    public List<ApplyResult> findCurrentAppliesByUserIdAndLectureId(ApplyParam applyParam){
 
-        try{
-            Apply.validate(applyId, userId, lectureId);
-        }catch (IllegalArgumentException e){
-            return null;
-        }
-
-
-        return applyRepository.findByUserIdAndLectureId(userId, lectureId);
-
+        return applyRepository.findByUserIdAndLectureId(applyParam.getUserId(), applyParam.getLectureId())
+                .orElseThrow(()->new ApplyByUserIdAndLectureIdNotFoundException(ErrorCode.APPLY_NONE))
+                .stream().map(apply -> {
+                    return apply.convertFromEntityToDomainDTO();}).toList();
 
     }
 
@@ -47,69 +48,65 @@ public class ApplyService {
         return currentApplies.stream().map(apply -> apply.convertFromEntityToDomainDTO()).toList();
     }
 
-    public void checkLectureApplyStatus(Long applyId, Long userId, Long lectureId) throws IllegalArgumentException{
+    @Validated(SearchLectureStatusByApply.class)
+    public void checkLectureApplyStatus(@Valid ApplyParam applyParam){
 
-        // 수강 신청 정보 유효성 검사
-        Apply.validate(applyId,userId,lectureId);
+        long userId = applyParam.getUserId();
+
+        long lectureId = applyParam.getLectureId();
 
         // 수강 신청 목록에 해당 수강 신청 정보가 이미 있는지 확인
         if(applyRepository.existsByUserIdAndLectureId(userId, lectureId)){
-            throw new IllegalArgumentException();
+            throw new LectureInvalidException(ErrorCode.APPLY_EXIST);
         }
 
-        List<Apply> applies = applyRepository.findByUserId(userId);
+        List<Apply> applies = applyRepository.findByUserId(userId).orElseThrow(()->new ApplyByUserIdNotFoundException(ErrorCode.APPLY_NONE));
 
-        if(applies != null){
-            applies.stream().filter(apply ->
-                    apply.getLectureId().longValue() != lectureId.longValue()
-            ).forEach(apply -> {
+        applies.stream().filter(apply ->
+                apply.getLectureId().longValue() != lectureId
+        ).forEach(apply -> {
 
-                apply.checkDurableDate(lectureRepository.findById(lectureId));
+            apply.checkDuplicatedDateAndTime(lectureRepository.findById(lectureId).orElseThrow(()->new ApplyByLectureIdNotFoundException(ErrorCode.LECTURE_NONE)));
 
 
-            });
-        }
+        });
+
 
     }
-    public void checkLectureCancleStatus(Long applyId, Long userId, Long lectureId) throws IllegalArgumentException{
 
-        // 수강 신청 정보 유효성 검증
-        Apply.validate(applyId, userId, lectureId);
+    @Validated(SearchLectureStatusByApply.class)
+    public void checkLectureCancleStatus(@Valid ApplyParam applyParam) {
+
+        long userId = applyParam.getUserId();
+
+        long lectureId = applyParam.getLectureId();
 
         // 수강 신청 목록에 수강 취소하려는 수강 신청 정보가 있는지 확인
         if(!applyRepository.existsByUserIdAndLectureId(userId, lectureId)){
-            throw new IllegalArgumentException();
+            throw new ApplyInvalidException(ErrorCode.APPLY_NONE);
         }
 
     }
 
+    @Validated(SaveApply.class)
     @Transactional
-    public void saveApply(long userId, long lectureId) {
+    public void saveApply(@Valid ApplyParam applyParam) {
 
-        // 강의 정보 유효성 검사
-        Lecture.validate(lectureId);
+        long userId = applyParam.getUserId();
+        long lectureId = applyParam.getLectureId();
 
         // 강의 테이블에서 해당 강의 아이디로 조회
-        Lecture lecture = lectureRepository.findById(lectureId);
+        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow(()->new LectureByIdNotFoundException(ErrorCode.LECTURE_NONE));
 
         // 수강 신청 테이블에 수강 신청정보 저장
-        applyRepository.save(Apply.builder()
-                        .userId(userId)
-                        .lectureId(lecture.getLectureId())
-                        .lectureDate(lecture.getDate())
-                        .room(lecture.getRoom())
-                        .cost(lecture.getCost())
-                        .startTime(lecture.getStartTime())
-                        .endTime(lecture.getEndTime())
-                        .build());
+        applyRepository.save(Apply.of(userId, lectureId, lecture.getLectureName(),
+                lecture.getDate(),lecture.getRoom(), lecture.getCost(), lecture.getStartTime(), lecture.getEndTime()));
     }
 
 
+    @Validated(RemoveApply.class)
     @Transactional
-    public void removeApply(ApplyParam applyParam) {
-
-        // 수강 신청 정보 유효성 검사
-        Apply.validate(applyParam.getApplyId(),applyParam.getUserId(),applyParam.getLectureId());
+    public void removeApply(@Valid ApplyParam applyParam) {
 
 
         applyRepository.deleteByUserIdAndLectureId(applyParam.getUserId(), applyParam.getLectureId());

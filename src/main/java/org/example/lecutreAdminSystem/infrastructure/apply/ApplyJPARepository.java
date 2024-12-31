@@ -5,11 +5,12 @@ import org.example.lecutreAdminSystem.domain.apply.repository.ApplyRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ApplyJPARepository extends JpaRepository<Apply, Long> {
-    List<Apply> findByUserId(Long userId);
+    Optional<List<Apply>> findByUserId(Long userId);
 
-    List<Apply> findByUserIdAndLectureId(Long userId, Long lectureId);
+    Optional<List<Apply>> findByUserIdAndLectureId(Long userId, Long lectureId);
 
     boolean existsByUserIdAndLectureId(Long userId, Long lectureId);
 
